@@ -1,0 +1,16 @@
+{
+  "runs": 3,
+  "routes": ["/"],
+  "thresholds": {
+    "performance": 0.9,
+    "accessibility": 1,
+    "best-practices": 0.95,
+    "largest-contentful-paint": 2500,
+    "cumulative-layout-shift": 0.1,
+    "total-blocking-time": 200,
+    "image-size-responsive": 1,
+    "unsized-images": 1,
+    "image-delivery-insight": 0.5,
+    "image-delivery-wasted-bytes": 20480
+  }
+}

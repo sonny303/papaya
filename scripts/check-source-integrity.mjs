@@ -4,12 +4,14 @@ import { extname, join, relative } from "node:path";
 
 const root = process.cwd();
 const requiredFiles = [
+  ".npmrc",
   "index.html",
   "pnpm-lock.yaml",
   "src/App.tsx",
   "src/components/Card.tsx",
   "src/components/PapayaLogo.tsx",
   "src/components/PapayaMark.tsx",
+  "src/data/route-metadata.json",
   "src/pages/Home.tsx",
   "src/pages/WhoWeServe.tsx",
   "src/pages/About.tsx",
@@ -21,7 +23,26 @@ const requiredFiles = [
   "public/404.css",
   "public/THIRD_PARTY_NOTICES.txt",
   "public/assets/couple-planning.jpg",
+  "public/assets/couple-planning-640.avif",
+  "public/assets/couple-planning-640.webp",
+  "public/assets/couple-planning-768.avif",
+  "public/assets/couple-planning-768.webp",
+  "public/assets/couple-planning-960.avif",
+  "public/assets/couple-planning-960.webp",
+  "public/assets/couple-planning-1448.avif",
+  "public/assets/couple-planning-1448.webp",
   "public/assets/papaya-mark.svg",
+  "scripts/generate-responsive-assets.mjs",
+  "scripts/generate-route-pages.mjs",
+  "scripts/check-route-pages.mjs",
+  "scripts/check-git-history.mjs",
+  "scripts/check-responsive-assets.mjs",
+  "scripts/check-performance-budget.mjs",
+  "scripts/run-lighthouse.mjs",
+  "lighthouse-budget.json",
+  "SECURITY.md",
+  "docs/vulnerability-policy.md",
+  ".github/dependabot.yml",
 ];
 
 const retiredAssets = [
@@ -34,6 +55,38 @@ const assetChecksums = new Map([
   [
     "public/assets/couple-planning.jpg",
     "397180249d1a63313009c8781d7597cb3ce2af2c846ca1c153487d46e28d2e39",
+  ],
+  [
+    "public/assets/couple-planning-640.avif",
+    "8cdd3e8da8ec0074b21fa6524cccc73c590206e4ba90cd0775440e6cae731a65",
+  ],
+  [
+    "public/assets/couple-planning-640.webp",
+    "537e985fceb8e4bd2e16f55203558133a0cf5f9eecf609663cf3b3e302e0f31d",
+  ],
+  [
+    "public/assets/couple-planning-768.avif",
+    "74589bb8a9c37075d522a18c45a074b579ce9538f263c0444e224468855b26ef",
+  ],
+  [
+    "public/assets/couple-planning-768.webp",
+    "e61a845390278aea9c7f4bda17a59f664e9a6c06fb754f20dd5c8d4ab32455c6",
+  ],
+  [
+    "public/assets/couple-planning-960.avif",
+    "d9150890f9ab6416a75065a34630fc4bce57241785251ad6fd1bf1b83b0fff74",
+  ],
+  [
+    "public/assets/couple-planning-960.webp",
+    "2d37a9eb76172be0e67f5519fb4d06cdc0cd0dfdc089f6b708d5153e18b56d41",
+  ],
+  [
+    "public/assets/couple-planning-1448.avif",
+    "19b9124b911c656b5222eae21532f4828c7b7be178d223a8baa439df4e6c7a4c",
+  ],
+  [
+    "public/assets/couple-planning-1448.webp",
+    "c440a5573f5272fbb4d6843f410b91317511b444c229e85b18f7bf04c57579ae",
   ],
   [
     "public/assets/papaya-mark.svg",
@@ -154,20 +207,21 @@ for (const [name, version] of Object.entries(manifest.dependencies ?? {})) {
   }
 }
 
-const expectedHostRoutes = new Set([
-  "/about-us",
-  "/privacy",
-  "/terms",
-  "/who-we-serve",
+const expectedHostRoutes = new Map([
+  ["/about-us", "/about-us.html"],
+  ["/privacy", "/privacy.html"],
+  ["/terms", "/terms.html"],
+  ["/who-we-serve", "/who-we-serve.html"],
 ]);
-const configuredHostRoutes = new Set(
-  (hostConfig.rewrites ?? [])
-    .filter((rewrite) => rewrite.destination === "/index.html")
-    .map((rewrite) => rewrite.source),
+const configuredHostRoutes = new Map(
+  (hostConfig.rewrites ?? []).map((rewrite) => [
+    rewrite.source,
+    rewrite.destination,
+  ]),
 );
-for (const route of expectedHostRoutes) {
-  if (!configuredHostRoutes.has(route)) {
-    failures.push(`vercel.json does not route ${route} to the application`);
+for (const [route, output] of expectedHostRoutes) {
+  if (configuredHostRoutes.get(route) !== output) {
+    failures.push(`vercel.json does not route ${route} to ${output}`);
   }
 }
 if (configuredHostRoutes.has("/(.*)")) {
@@ -179,18 +233,31 @@ if (configuredHostRoutes.has("/(.*)")) {
 const globalHeaders = (hostConfig.headers ?? []).find(
   (entry) => entry.source === "/(.*)",
 )?.headers;
-const configuredHeaderNames = new Set(
-  (globalHeaders ?? []).map((header) => header.key.toLowerCase()),
+const configuredHeaders = new Map(
+  (globalHeaders ?? []).map((header) => [
+    header.key.toLowerCase(),
+    header.value,
+  ]),
 );
-for (const header of [
-  "content-security-policy",
-  "permissions-policy",
-  "referrer-policy",
-  "strict-transport-security",
-  "x-content-type-options",
-]) {
-  if (!configuredHeaderNames.has(header)) {
-    failures.push(`vercel.json is missing the ${header} response header`);
+const expectedHeaders = new Map([
+  [
+    "content-security-policy",
+    "default-src 'self'; base-uri 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; manifest-src 'self'; media-src 'none'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests",
+  ],
+  ["cross-origin-opener-policy", "same-origin"],
+  ["cross-origin-resource-policy", "same-origin"],
+  [
+    "permissions-policy",
+    "accelerometer=(), autoplay=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()",
+  ],
+  ["referrer-policy", "strict-origin-when-cross-origin"],
+  ["strict-transport-security", "max-age=31536000; includeSubDomains"],
+  ["x-content-type-options", "nosniff"],
+  ["x-frame-options", "DENY"],
+]);
+for (const [header, expectedValue] of expectedHeaders) {
+  if (configuredHeaders.get(header) !== expectedValue) {
+    failures.push(`vercel.json has an invalid ${header} response header`);
   }
 }
 

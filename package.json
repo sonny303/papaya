@@ -9,8 +9,9 @@
     "pnpm": "11.19.x"
   },
   "scripts": {
+    "assets:generate": "node scripts/generate-responsive-assets.mjs",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/generate-route-pages.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "oxlint --deny-warnings .",
@@ -19,10 +20,15 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "performance:budget": "node scripts/check-performance-budget.mjs",
+    "performance:lighthouse": "node scripts/run-lighthouse.mjs",
+    "check:history": "node scripts/check-git-history.mjs",
+    "check:assets": "node scripts/check-responsive-assets.mjs",
     "check:repo": "node scripts/check-public-repository.mjs",
     "check:source": "node scripts/check-source-integrity.mjs",
     "check:public": "node scripts/check-public-build.mjs",
-    "verify": "pnpm check:repo && pnpm check:source && pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm check:public"
+    "check:seo": "node scripts/check-route-pages.mjs",
+    "verify": "pnpm check:repo && pnpm check:history && pnpm check:source && pnpm check:assets && pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm check:seo && pnpm check:public && pnpm performance:budget"
   },
   "dependencies": {
     "@fontsource/dm-sans": "5.3.0",
@@ -43,9 +49,11 @@
     "@vitejs/plugin-react": "6.1.1",
     "autoprefixer": "10.5.5",
     "jsdom": "30.0.1",
+    "lighthouse": "13.4.1",
     "oxlint": "1.82.0",
     "postcss": "8.5.28",
     "prettier": "3.9.6",
+    "sharp": "0.35.4",
     "tailwindcss": "3.4.19",
     "typescript": "6.0.3",
     "vite": "8.2.2",

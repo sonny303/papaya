@@ -11,6 +11,7 @@ const ignoredDirectories = new Set([
 ]);
 const forbiddenFilePatterns = [
   { label: "environment file", pattern: /(^|\/)\.env(?:\.|$)/i },
+  { label: "host link state", pattern: /(^|\/)\.vercel(?:\/|$)/i },
   {
     label: "private working file",
     pattern: /(^|\/)(?:internal|private|scratch|notes?)(?:[._/-]|$)/i,
@@ -22,11 +23,28 @@ const forbiddenContentPatterns = [
   { label: "local Windows path", pattern: /[A-Z]:\\Users\\/i },
   { label: "private key", pattern: /BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY/ },
   { label: "GitHub token", pattern: /gh[pousr]_[A-Za-z0-9_]{20,}/ },
+  {
+    label: "GitHub fine-grained token",
+    pattern: /github_pat_[A-Za-z0-9_]{20,}/,
+  },
   { label: "npm token", pattern: /npm_[A-Za-z0-9]{20,}/ },
+  {
+    label: "npm auth assignment",
+    pattern: /\/\/[^:\s]+(?::\d+)?\/?:_authToken\s*=\s*(?!\$\{)[^\s"']{8,}/i,
+  },
   { label: "Slack token", pattern: /xox[baprs]-[A-Za-z0-9-]{10,}/ },
   { label: "Google API key", pattern: /AIza[A-Za-z0-9_-]{30,}/ },
+  { label: "AWS access key", pattern: /(?:AKIA|ASIA)[A-Z0-9]{16}/ },
   { label: "payment secret", pattern: /sk_(?:live|test)_[A-Za-z0-9]{16,}/ },
   { label: "OpenAI secret", pattern: /sk-(?:proj-)?[A-Za-z0-9_-]{20,}/ },
+  {
+    label: "credential-bearing URL",
+    pattern: /https?:\/\/[^\s/:@]+:[^\s/@]+@/i,
+  },
+  {
+    label: "Vercel token assignment",
+    pattern: /VERCEL_TOKEN\s*[:=]\s*["']?[A-Za-z0-9_-]{20,}/i,
+  },
   {
     label: "Supabase service-role assignment",
     pattern: /SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*["']?\S{20,}/i,

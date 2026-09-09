@@ -6,10 +6,10 @@
   "outputDirectory": "dist",
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/who-we-serve", "destination": "/index.html" },
-    { "source": "/about-us", "destination": "/index.html" },
-    { "source": "/terms", "destination": "/index.html" },
-    { "source": "/privacy", "destination": "/index.html" }
+    { "source": "/who-we-serve", "destination": "/who-we-serve.html" },
+    { "source": "/about-us", "destination": "/about-us.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/privacy", "destination": "/privacy.html" }
   ],
   "headers": [
     {

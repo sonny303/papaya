@@ -173,6 +173,64 @@ test("About mark has stable visible geometry", async ({ page }) => {
   expect(box?.width).toBeGreaterThan(250);
 });
 
+test("the lifestyle image selects responsive modern sources", async ({
+  browser,
+  browserName,
+}) => {
+  test.skip(browserName !== "chromium", "One engine proves source selection");
+
+  for (const candidate of [
+    { width: 390, height: 844, scale: 1, sourceWidth: 640 },
+    { width: 768, height: 900, scale: 1, sourceWidth: 768 },
+    { width: 768, height: 900, scale: 1.25, sourceWidth: 960 },
+    { width: 1024, height: 900, scale: 2, sourceWidth: 1448 },
+  ]) {
+    const context = await browser.newContext({
+      viewport: { width: candidate.width, height: candidate.height },
+      deviceScaleFactor: candidate.scale,
+    });
+    const page = await context.newPage();
+    await page.goto("/");
+
+    const image = page.getByRole("img", {
+      name: "Two partners making plans together at a table at home",
+    });
+    await image.scrollIntoViewIfNeeded();
+    await expect(image).toBeVisible();
+    await expect
+      .poll(() => image.evaluate((element) => element.currentSrc))
+      .toMatch(
+        new RegExp(`couple-planning-${candidate.sourceWidth}\\.(?:avif|webp)$`),
+      );
+    await context.close();
+  }
+});
+
+test("the built route pages expose preview-safe metadata", async ({
+  browserName,
+  request,
+}) => {
+  test.skip(browserName !== "chromium", "Static output needs one request pass");
+
+  for (const route of [
+    {
+      file: "index.html",
+      title: "Papaya Health | Prepare for conception together",
+    },
+    { file: "who-we-serve.html", title: "Who We Serve | Papaya Health" },
+    { file: "about-us.html", title: "About Us | Papaya Health" },
+    { file: "terms.html", title: "Terms of Service | Papaya Health" },
+    { file: "privacy.html", title: "Privacy Policy | Papaya Health" },
+  ]) {
+    const response = await request.get(`/${route.file}`);
+    expect(response.ok()).toBe(true);
+    const html = await response.text();
+    expect(html).toContain(`<title>${route.title}</title>`);
+    expect(html).toContain('<meta name="robots" content="noindex,follow" />');
+    expect(html).not.toContain('rel="canonical"');
+  }
+});
+
 test("unknown routes render an accessible not-found page", async ({ page }) => {
   await page.goto("/missing-page");
   await expect(page).toHaveURL(/\/missing-page$/);

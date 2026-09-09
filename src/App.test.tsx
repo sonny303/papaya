@@ -13,16 +13,38 @@ const routes = [
     path: "/",
     heading: /everything you and your partner/i,
     title: /Papaya Health \| Prepare/,
+    description: /organize preconception planning together/i,
   },
   {
     path: "/who-we-serve",
     heading: /built for families/i,
     title: /Who We Serve/,
+    description: /patients, partners, and clinics/i,
   },
-  { path: "/about-us", heading: /from searching alone/i, title: /About Us/ },
-  { path: "/about-us/", heading: /from searching alone/i, title: /About Us/ },
-  { path: "/terms", heading: /terms of service/i, title: /Terms of Service/ },
-  { path: "/privacy", heading: /privacy policy/i, title: /Privacy Policy/ },
+  {
+    path: "/about-us",
+    heading: /from searching alone/i,
+    title: /About Us/,
+    description: /being built/i,
+  },
+  {
+    path: "/about-us/",
+    heading: /from searching alone/i,
+    title: /About Us/,
+    description: /being built/i,
+  },
+  {
+    path: "/terms",
+    heading: /terms of service/i,
+    title: /Terms of Service/,
+    description: /terms that govern/i,
+  },
+  {
+    path: "/privacy",
+    heading: /privacy policy/i,
+    title: /Privacy Policy/,
+    description: /information handling/i,
+  },
 ] as const;
 
 describe("public routes", () => {
@@ -35,6 +57,14 @@ describe("public routes", () => {
         await screen.findByRole("heading", { level: 1, name: route.heading }),
       ).toBeVisible();
       await waitFor(() => expect(document.title).toMatch(route.title));
+      expect(
+        document.head.querySelector<HTMLMetaElement>('meta[name="description"]')
+          ?.content,
+      ).toMatch(route.description);
+      expect(
+        document.head.querySelector<HTMLMetaElement>('meta[name="robots"]')
+          ?.content,
+      ).toBe("noindex,follow");
       expect(document.querySelectorAll("main")).toHaveLength(1);
     });
   }

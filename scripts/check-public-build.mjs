@@ -26,7 +26,20 @@ const forbiddenPatterns = [
   { label: "preview title", pattern: /Internal Preview/i },
   { label: "private key", pattern: /BEGIN (?:RSA |OPENSSH |EC )?PRIVATE KEY/ },
   { label: "GitHub token", pattern: /gh[pousr]_[A-Za-z0-9_]{20,}/ },
+  {
+    label: "GitHub fine-grained token",
+    pattern: /github_pat_[A-Za-z0-9_]{20,}/,
+  },
+  { label: "AWS access key", pattern: /(?:AKIA|ASIA)[A-Z0-9]{16}/ },
   { label: "payment secret", pattern: /sk_(?:live|test)_[A-Za-z0-9]{16,}/ },
+  {
+    label: "credential-bearing URL",
+    pattern: /https?:\/\/[^\s/:@]+:[^\s/@]+@/i,
+  },
+  {
+    label: "Vercel token assignment",
+    pattern: /VERCEL_TOKEN\s*[:=]\s*["']?[A-Za-z0-9_-]{20,}/i,
+  },
 ];
 
 async function walk(directory) {
@@ -59,7 +72,17 @@ if (!files.includes(join(outputDirectory, "THIRD_PARTY_NOTICES.txt"))) {
   }
 }
 
-for (const requiredOutput of ["404.html", "404.css"]) {
+for (const requiredOutput of [
+  "404.html",
+  "404.css",
+  "about-us.html",
+  "index.html",
+  "privacy.html",
+  "robots.txt",
+  "sitemap.xml",
+  "terms.html",
+  "who-we-serve.html",
+]) {
   if (!files.includes(join(outputDirectory, requiredOutput))) {
     failures.push(`dist/${requiredOutput} is missing`);
   }

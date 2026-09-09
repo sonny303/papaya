@@ -1,0 +1,27 @@
+{
+  "/": {
+    "title": "Papaya Health | Prepare for conception together",
+    "description": "Papaya Health helps people and their partners organize preconception planning together in one clear place.",
+    "indexable": true
+  },
+  "/who-we-serve": {
+    "title": "Who We Serve | Papaya Health",
+    "description": "See how Papaya Health is designed to support patients, partners, and clinics preparing for conception.",
+    "indexable": true
+  },
+  "/about-us": {
+    "title": "About Us | Papaya Health",
+    "description": "Learn why Papaya Health is being built to make preconception planning feel more organized and collaborative.",
+    "indexable": true
+  },
+  "/terms": {
+    "title": "Terms of Service | Papaya Health",
+    "description": "Read the terms that govern use of the Papaya Health public website.",
+    "indexable": false
+  },
+  "/privacy": {
+    "title": "Privacy Policy | Papaya Health",
+    "description": "Read how Papaya Health describes information handling on its public website.",
+    "indexable": false
+  }
+}

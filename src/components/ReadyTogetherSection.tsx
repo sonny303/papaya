@@ -23,15 +23,27 @@ export function ReadyTogetherSection() {
           </div>
 
           <figure className="relative min-h-[320px] overflow-hidden sm:min-h-[400px] lg:min-h-[520px]">
-            <img
-              src="/assets/couple-planning.jpg"
-              alt="Two partners making plans together at a table at home"
-              className="absolute inset-0 size-full object-cover"
-              width="1448"
-              height="1086"
-              loading="lazy"
-              decoding="async"
-            />
+            <picture>
+              <source
+                type="image/avif"
+                srcSet="/assets/couple-planning-640.avif 640w, /assets/couple-planning-768.avif 768w, /assets/couple-planning-960.avif 960w, /assets/couple-planning-1448.avif 1448w"
+                sizes="(min-width: 1024px) 604px, (min-width: 768px) calc(100vw - 48px), calc(100vw - 32px)"
+              />
+              <source
+                type="image/webp"
+                srcSet="/assets/couple-planning-640.webp 640w, /assets/couple-planning-768.webp 768w, /assets/couple-planning-960.webp 960w, /assets/couple-planning-1448.webp 1448w"
+                sizes="(min-width: 1024px) 604px, (min-width: 768px) calc(100vw - 48px), calc(100vw - 32px)"
+              />
+              <img
+                src="/assets/couple-planning.jpg"
+                alt="Two partners making plans together at a table at home"
+                className="absolute inset-0 size-full object-cover"
+                width="1448"
+                height="1086"
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           </figure>
         </div>
       </div>

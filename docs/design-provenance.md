@@ -23,5 +23,9 @@ to exclude brands, logos, readable text, and medical records. The checked-in
 JPEG is a 1448 by 1086 production derivative and contains no authentication
 credentials or account identifiers.
 
+The eight `couple-planning-{640,768,960,1448}.{avif,webp}` files are deterministic
+responsive derivatives generated from that approved JPEG by `pnpm
+assets:generate`. Their checksums are enforced by the source-integrity check.
+
 The mark and wordmark are rendered from repository source. Neither production
 asset is sourced from a stock library or a runtime design-platform URL.

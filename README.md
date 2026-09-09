@@ -19,10 +19,24 @@ pnpm dev
 ```bash
 pnpm verify
 pnpm test:e2e
+pnpm performance:lighthouse
 ```
 
 `pnpm verify` runs public-repository and source-integrity checks, type checking,
-linting, unit tests, the production build, and a public-bundle scan.
+linting, unit tests, the production build, route-metadata validation, a
+public-bundle scan, and deterministic performance budgets. Lighthouse uses the
+installed Playwright Chromium binary and does not require credentials.
+
+Responsive AVIF and WebP assets are regenerated from the approved JPEG with
+`pnpm assets:generate`.
+
+## Deployment metadata
+
+Preview builds are always emitted with `noindex` metadata and a disallowing
+`robots.txt`. Production builds require `PUBLIC_SITE_ORIGIN`, set to the public
+HTTPS origin without a path. This setting is not a credential. Canonical URLs
+and the sitemap are emitted only when the deployment environment is
+`production`.
 
 ## Structure
 
@@ -32,6 +46,7 @@ linting, unit tests, the production build, and a public-bundle scan.
 - `public/assets` contains repository-managed runtime assets.
 - `docs/design-provenance.md` records the approved design import.
 - `docs/support-matrix.md` defines browser, responsive, and assistive-technology coverage.
+- `docs/vulnerability-policy.md` defines the dependency vulnerability gate.
 - `vercel.json` defines preview and production routing and response headers.
 
 Runtime dependency licenses are published in

@@ -14,7 +14,9 @@ dist-ssr
 .env
 .env.*
 !.env.example
+.vercel/
 .playwright/
+.lighthouseci/
 playwright-report/
 test-results/
 coverage/
