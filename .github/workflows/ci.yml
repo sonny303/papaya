@@ -15,7 +15,7 @@ concurrency:
 jobs:
   verify:
     name: Verify
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Check out source
@@ -38,10 +38,14 @@ jobs:
         run: pnpm verify
 
   browser:
-    name: Browser smoke
+    name: Browser (${{ matrix.project }})
     needs: verify
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -57,9 +61,19 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      - name: Install Chromium
-        run: pnpm exec playwright install --with-deps chromium
+      - name: Install browsers
+        run: pnpm exec playwright install --with-deps ${{ matrix.project }}
       - name: Build production bundle
         run: pnpm build
       - name: Run browser tests
-        run: pnpm test:e2e
+        run: pnpm test:e2e --project=${{ matrix.project }}
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-${{ matrix.project }}-${{ github.run_attempt }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

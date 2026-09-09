@@ -31,6 +31,7 @@ linting, unit tests, the production build, and a public-bundle scan.
 - `src/data` contains static public-page content.
 - `public/assets` contains repository-managed runtime assets.
 - `docs/design-provenance.md` records the approved design import.
+- `docs/support-matrix.md` defines browser, responsive, and assistive-technology coverage.
 - `vercel.json` defines preview and production routing and response headers.
 
 Runtime dependency licenses are published in
