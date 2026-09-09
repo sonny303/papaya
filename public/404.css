@@ -1,0 +1,114 @@
+:root {
+  color: #302f29;
+  background: #fffcf7;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+main {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  width: min(100% - 32px, 720px);
+  margin: 0 auto;
+  padding: 48px 0;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  color: #302f29;
+  text-decoration: none;
+}
+
+.brand img {
+  display: block;
+  width: 58px;
+  height: auto;
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.brand-name {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.055em;
+}
+
+.brand-health {
+  margin-top: 3px;
+  padding-left: 3px;
+  color: #375c4c;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+}
+
+.eyebrow {
+  margin: 40px 0 0;
+  color: #a83e24;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 640px;
+  margin: 12px 0 0;
+  font-size: clamp(2.25rem, 8vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.message {
+  max-width: 560px;
+  margin: 24px 0 0;
+  color: #68655d;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.action {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+  padding: 12px 22px;
+  border-radius: 12px;
+  color: #ffffff;
+  background: #b54227;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand:focus-visible,
+.action:focus-visible {
+  outline: 3px solid #37664d;
+  outline-offset: 4px;
+}

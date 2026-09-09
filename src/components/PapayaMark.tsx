@@ -1,0 +1,53 @@
+const seeds = [
+  { cx: 55, cy: 70 },
+  { cx: 72, cy: 67 },
+  { cx: 47, cy: 85 },
+  { cx: 68, cy: 86 },
+  { cx: 43, cy: 102 },
+  { cx: 62, cy: 105 },
+  { cx: 50, cy: 120 },
+] as const;
+
+type PapayaMarkProps = {
+  animated?: boolean;
+  className?: string;
+};
+
+export function PapayaMark({
+  animated = false,
+  className = "",
+}: PapayaMarkProps) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      viewBox="0 0 120 152"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M64 18c7-11 17-14 28-11-3 10-12 17-27 19" fill="#375c4c" />
+      <path d="M61 24c-2-10 1-18 8-24 6 8 6 17 0 27" fill="#6f8a6f" />
+      <path
+        d="M60 17c-23 1-42 20-49 49-8 34 3 68 27 80 20 10 45 2 61-25 17-29 15-70-4-91C85 20 72 16 60 17Z"
+        fill="#ff9e28"
+      />
+      <path
+        d="M61 31c-16 1-30 17-35 39-6 26 2 51 18 60 13 7 30 1 41-20 12-22 11-52-2-68-7-8-15-12-22-11Z"
+        fill="#ffe2a6"
+      />
+      <path
+        d="M61 44c-11 1-21 13-25 31-4 21 1 40 12 47 9 6 21 1 29-15 8-17 8-39-1-52-5-7-10-11-15-11Z"
+        fill="#ffc25c"
+      />
+      {seeds.map((seed, index) => (
+        <circle
+          key={`${seed.cx}-${seed.cy}`}
+          className={animated ? "papaya-seed" : undefined}
+          cx={seed.cx}
+          cy={seed.cy}
+          r={index % 2 === 0 ? 4.5 : 4}
+          fill="#302f29"
+        />
+      ))}
+    </svg>
+  );
+}
