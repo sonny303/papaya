@@ -1,0 +1,1 @@
+../../.cursor/agents/papaya-qa.md
