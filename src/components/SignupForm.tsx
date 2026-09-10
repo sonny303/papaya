@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { Link } from "react-router-dom";
 
@@ -8,6 +8,15 @@ export function SignupForm({ kind }: { kind: "waitlist" | "clinic" }) {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [toastMessage, setToastMessage] = useState("");
+  const [formAvailable, setFormAvailable] = useState(true);
+  const requiredFieldNames = useMemo(
+    () =>
+      kind === "clinic"
+        ? ["name", "clinic", "email", "website", "consent"]
+        : ["email", "website", "consent"],
+    [kind],
+  );
+  const formRef = useRef<HTMLFormElement | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -22,11 +31,26 @@ export function SignupForm({ kind }: { kind: "waitlist" | "clinic" }) {
     toastTimer.current = setTimeout(() => setToastMessage(""), 4500);
   };
 
+  useEffect(() => {
+    if (!formRef.current) return;
+    const hasAllKeys = requiredFieldNames.every(
+      (key) => formRef.current?.elements.namedItem(key) !== null,
+    );
+    setFormAvailable(hasAllKeys);
+  }, [requiredFieldNames]);
+
+  const hasRequiredKeys = (formData: FormData) =>
+    requiredFieldNames.every((key) => formData.has(key));
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
     const form = event.currentTarget;
     const data = new FormData(form);
+    if (!hasRequiredKeys(data)) {
+      setFormAvailable(false);
+      return;
+    }
     setBusy(true);
     setError("");
     try {
@@ -68,21 +92,23 @@ export function SignupForm({ kind }: { kind: "waitlist" | "clinic" }) {
       setBusy(false);
     }
   }
+  if (!formAvailable) return null;
   return (
-      <div className="signup-container">
-        {toastMessage && (
-          <p role="status" className="signup-toast">
-            {toastMessage}
-          </p>
-        )}
-        {saved ? (
-          kind === "clinic" && (
-            <p role="status" className="signup-success">
-              Thank you. Your clinic pilot inquiry has been saved.
-            </p>
-          )
-        ) : (
-          <form
+    <div className="signup-container">
+      {toastMessage && (
+        <p role="status" className="signup-toast">
+          {toastMessage}
+        </p>
+      )}
+      {saved ? (
+        <p role="status" className="signup-success">
+          {kind === "clinic"
+            ? "Thank you. Your clinic pilot inquiry has been saved."
+            : "Thank you. You’re on the Papaya Health waitlist."}
+        </p>
+      ) : (
+        <form
+          ref={formRef}
           onSubmit={submit}
           className="signup-form"
           aria-label={
