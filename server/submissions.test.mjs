@@ -55,7 +55,11 @@ async function run({
   };
   const response = await handleSubmission(
     request,
-    settings === env ? { DB: db, SUBMISSION_HASH_SECRET: "test-only" } : {},
+    settings === env
+      ? { ...env, DB: db, SUBMISSION_HASH_SECRET: "test-only" }
+      : settings,
+    undefined,
+    fetcher,
   );
   return {
     statusCode: response.status,
@@ -117,6 +121,46 @@ test("confirmed database batch acknowledges saving", async () => {
   const response = await run();
   assert.equal(response.statusCode, 200);
   assert.equal(response.body.saved, true);
+});
+test("notifies team inbox after waitlist signup", async () => {
+  let requested;
+  const response = await run({
+    settings: {
+      ...env,
+      DB: {
+        prepare(sql) {
+          return {
+            sql,
+            bind(...values) {
+              return { sql, values };
+            },
+          };
+        },
+        async batch(statements) {
+          return [
+            { success: true },
+            { success: true, results: [{ hits: 1 }] },
+            { success: true },
+          ];
+        },
+      },
+      SUBMISSION_HASH_SECRET: "test-only",
+      RESEND_API_KEY: "test-api-key",
+      RESEND_FROM_EMAIL: "hello@papayahealth.com",
+    },
+    fetcher: async (url, options) => {
+      requested = { url, options };
+      return { ok: true };
+    },
+  });
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.saved, true);
+  assert.equal(requested?.url, "https://api.resend.com/emails");
+  const payload = JSON.parse(requested?.options.body);
+  assert.equal(payload.from, "hello@papayahealth.com");
+  assert.equal(payload.to[0], "hello@papayahealth.com");
+  assert.equal(payload.subject, "New Papaya Health waitlist signup");
+  assert.equal(payload.text, "A new email joined the waitlist: test@example.com");
 });
 test("storage rate limit produces retry guidance", async () => {
   const response = await run({ hits: 11 });

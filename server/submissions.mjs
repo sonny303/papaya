@@ -1,4 +1,29 @@
 export const consentVersion = "2026-09-10";
+const waitlistNotificationRecipient = "hello@papayahealth.com";
+const waitlistNotificationUrl = "https://api.resend.com/emails";
+
+async function notifyWaitlistSignup(email, env, fetcher = fetch) {
+  if (!env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL) return;
+
+  const response = await fetcher(waitlistNotificationUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: env.RESEND_FROM_EMAIL,
+      to: [waitlistNotificationRecipient],
+      subject: "New Papaya Health waitlist signup",
+      text: `A new email joined the waitlist: ${email}`,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to notify on waitlist signup: ${response.status}`);
+  }
+}
+
 export function validateSubmission(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const { kind, email, consent, name = "", clinic = "", website = "" } = value;
@@ -30,7 +55,12 @@ export function validateSubmission(value) {
   };
 }
 
-export async function handleSubmission(request, env, now = new Date()) {
+export async function handleSubmission(
+  request,
+  env,
+  now = new Date(),
+  fetcher = fetch,
+) {
   const headers = {
     "Content-Type": "application/json",
     "Cache-Control": "no-store",
@@ -141,6 +171,11 @@ export async function handleSubmission(request, env, now = new Date()) {
         { error: "Too many attempts. Please try again in an hour." },
         { "Retry-After": "3600" },
       );
+
+    if (submission.kind === "waitlist") {
+      await notifyWaitlistSignup(submission.email, env, fetcher);
+    }
+
     return reply(200, { saved: true });
   } catch {
     return reply(503, {
