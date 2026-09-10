@@ -103,7 +103,7 @@ async function validatePreviewWithConfiguredOrigin() {
     await cp(outputDirectory, fixtureDirectory, { recursive: true });
     await generateRoutePages({
       outputDirectory: fixtureDirectory,
-      siteOrigin: "https://papaya.example",
+      siteOrigin: "https://papaya.example.com",
       deploymentEnvironment: "preview",
     });
     await validatePreviewPages(fixtureDirectory);
@@ -118,7 +118,7 @@ async function validateProductionFixture() {
     await cp(outputDirectory, fixtureDirectory, { recursive: true });
     await generateRoutePages({
       outputDirectory: fixtureDirectory,
-      siteOrigin: "https://papaya.example",
+      siteOrigin: "https://papaya.example.com",
       deploymentEnvironment: "production",
     });
 
@@ -127,7 +127,7 @@ async function validateProductionFixture() {
         join(fixtureDirectory, outputName(route)),
         "utf8",
       );
-      const expectedCanonical = `https://papaya.example${route}`;
+      const expectedCanonical = `https://papaya.example.com${route}`;
       const canonical = attribute(html, 'link rel="canonical"', "href");
       const robots = attribute(html, 'meta name="robots"', "content");
       const openGraphUrl = attribute(html, 'meta property="og:url"', "content");
@@ -150,7 +150,7 @@ async function validateProductionFixture() {
       }
       if (
         openGraphImage !==
-          "https://papaya.example/assets/couple-planning.jpg" ||
+          "https://papaya.example.com/assets/couple-planning.jpg" ||
         twitterImage !== openGraphImage
       ) {
         throw new Error(`${route} has invalid production social imagery`);
@@ -170,17 +170,17 @@ async function validateProductionFixture() {
     const robots = await readFile(join(fixtureDirectory, "robots.txt"), "utf8");
     if (
       robots !==
-      "User-agent: *\nAllow: /\nSitemap: https://papaya.example/sitemap.xml\n"
+      "User-agent: *\nAllow: /\nSitemap: https://papaya.example.com/sitemap.xml\n"
     ) {
       throw new Error("production robots.txt is invalid");
     }
     for (const route of indexableRoutes) {
-      if (!sitemap.includes(`<loc>https://papaya.example${route}</loc>`)) {
+      if (!sitemap.includes(`<loc>https://papaya.example.com${route}</loc>`)) {
         throw new Error(`${route} is missing from the production sitemap`);
       }
     }
     for (const route of routes.filter((route) => !indexableRoutes.has(route))) {
-      if (sitemap.includes(`<loc>https://papaya.example${route}</loc>`)) {
+      if (sitemap.includes(`<loc>https://papaya.example.com${route}</loc>`)) {
         throw new Error(`${route} must not appear in the production sitemap`);
       }
     }
@@ -193,15 +193,27 @@ async function validateProductionFixture() {
 }
 
 function validateOriginRules() {
-  const credentialOrigin = new URL("https://papaya.example");
+  const credentialOrigin = new URL("https://papaya.example.com");
   credentialOrigin.username = "user";
   credentialOrigin.password = "password";
   for (const invalidOrigin of [
-    "http://papaya.example",
+    "http://papaya.example.com",
     credentialOrigin.href,
-    "https://papaya.example/path",
-    "https://papaya.example?query=value",
-    "https://papaya.example/#fragment",
+    "https://papaya.example.com/path",
+    "https://papaya.example.com?query=value",
+    "https://papaya.example.com/#fragment",
+    "https://localhost",
+    "https://papaya.localhost",
+    "https://papaya.local",
+    "https://papaya.example",
+    "https://papaya.invalid",
+    "https://papaya.test",
+    "https://papaya.internal",
+    "https://papaya.onion",
+    "https://papaya.home.arpa",
+    "https://intranet",
+    "https://127.0.0.1",
+    "https://[::1]",
   ]) {
     try {
       normalizeSiteOrigin(invalidOrigin);

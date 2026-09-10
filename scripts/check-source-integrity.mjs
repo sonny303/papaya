@@ -31,18 +31,35 @@ const requiredFiles = [
   "public/assets/couple-planning-960.webp",
   "public/assets/couple-planning-1448.avif",
   "public/assets/couple-planning-1448.webp",
+  "public/assets/papaya-footer-logo-144.webp",
+  "public/assets/papaya-footer-logo-288.webp",
   "public/assets/papaya-mark.svg",
   "scripts/generate-responsive-assets.mjs",
   "scripts/generate-route-pages.mjs",
   "scripts/check-route-pages.mjs",
   "scripts/check-git-history.mjs",
+  "scripts/check-git-history.test.mjs",
+  "scripts/check-ci-contract.mjs",
+  "scripts/check-ci-contract.test.mjs",
+  "scripts/check-public-repository.test.mjs",
   "scripts/check-responsive-assets.mjs",
   "scripts/check-performance-budget.mjs",
   "scripts/run-lighthouse.mjs",
+  "scripts/run-lighthouse.test.mjs",
+  "scripts/release-bundle.mjs",
+  "scripts/release-bundle.test.mjs",
+  "scripts/write-ci-evidence.mjs",
+  "scripts/write-ci-evidence.test.mjs",
+  "tests/e2e/links.spec.ts",
+  "playwright.config.ts",
   "lighthouse-budget.json",
   "SECURITY.md",
+  "docs/operations/incident-response.md",
+  "docs/operations/release.md",
+  "docs/operations/rollback.md",
   "docs/vulnerability-policy.md",
   ".github/dependabot.yml",
+  ".github/workflows/ci.yml",
 ];
 
 const retiredAssets = [
@@ -52,6 +69,14 @@ const retiredAssets = [
 ];
 
 const assetChecksums = new Map([
+  [
+    "public/assets/papaya-footer-logo-144.webp",
+    "8b16e4e6f484f35826fa790fd7f9152ac3ce6869124c0ae8e0dd5649b6227e78",
+  ],
+  [
+    "public/assets/papaya-footer-logo-288.webp",
+    "317a1b6bdddcb4d63fa4a775856557cdf0619bcd6b6b6cc3963350211d95e883",
+  ],
   [
     "public/assets/couple-planning.jpg",
     "397180249d1a63313009c8781d7597cb3ce2af2c846ca1c153487d46e28d2e39",

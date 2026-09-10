@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 
 const maxBlobBytes = 5 * 1024 * 1024;
+const maxTagBytes = 64 * 1024;
 const allowedEmailPattern =
   /^(?:[^@\s]+@users\.noreply\.github\.com|noreply@github\.com)$/;
 const forbiddenPathPatterns = [
@@ -59,8 +60,36 @@ function findForbiddenContent(contents) {
     .map(({ label }) => label);
 }
 
+function publicRefs() {
+  const refs = git([
+    "for-each-ref",
+    "--format=%(refname)",
+    "refs/heads",
+    "refs/remotes",
+    "refs/tags",
+  ])
+    .split("\n")
+    .map((ref) => ref.trim())
+    .filter(Boolean);
+
+  return [...new Set(["HEAD", ...refs])];
+}
+
+function annotatedTagRefs() {
+  return git([
+    "for-each-ref",
+    "--format=%(refname) %(objecttype) %(objectname)",
+    "refs/tags",
+  ])
+    .split("\n")
+    .map((record) => record.trim().split(" "))
+    .filter(([, objectType]) => objectType === "tag")
+    .map(([ref, , objectId]) => ({ ref, objectId }));
+}
+
 const failures = [];
-const records = git(["log", "--format=%H%x1f%ae%x1f%ce%x1f%B%x1e", "HEAD"])
+const refs = publicRefs();
+const records = git(["log", "--format=%H%x1f%ae%x1f%ce%x1f%B%x1e", ...refs])
   .split("\x1e")
   .map((record) => record.trim())
   .filter(Boolean);
@@ -82,7 +111,41 @@ for (const record of records) {
   }
 }
 
-const objects = git(["rev-list", "--objects", "HEAD"])
+const checkedTags = new Set();
+for (const { ref, objectId: initialObjectId } of annotatedTagRefs()) {
+  let objectId = initialObjectId;
+  while (git(["cat-file", "-t", objectId]).trim() === "tag") {
+    if (checkedTags.has(objectId)) break;
+    checkedTags.add(objectId);
+
+    const size = Number(git(["cat-file", "-s", objectId]).trim());
+    if (size > maxTagBytes) {
+      failures.push(`${ref} contains a ${size}-byte annotated tag`);
+      break;
+    }
+
+    const contents = git(["cat-file", "tag", objectId]);
+    const separator = contents.indexOf("\n\n");
+    const headers = separator === -1 ? contents : contents.slice(0, separator);
+    const message = separator === -1 ? "" : contents.slice(separator + 2);
+    const tagger = headers.match(/^tagger .* <([^<>]+)> \d+ [+-]\d{4}$/m);
+    if (!tagger || !allowedEmailPattern.test(tagger[1])) {
+      failures.push(`${ref} has a non-public annotated-tag email`);
+    }
+    for (const label of findForbiddenContent(message)) {
+      failures.push(`${ref} annotated-tag message contains ${label}`);
+    }
+
+    const target = headers.match(/^object ([a-f0-9]{40,64})$/m)?.[1];
+    if (!target) {
+      failures.push(`${ref} has a malformed annotated tag`);
+      break;
+    }
+    objectId = target;
+  }
+}
+
+const objects = git(["rev-list", "--objects", ...refs])
   .split("\n")
   .map((line) => line.trim())
   .filter(Boolean);
@@ -120,5 +183,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Git history scan passed (${records.length} commits and ${checkedBlobs.size} unique blobs checked).`,
+  `Git history scan passed (${refs.length} public refs, ${records.length} commits, ${checkedTags.size} annotated tags, and ${checkedBlobs.size} unique blobs checked).`,
 );

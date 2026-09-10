@@ -20,12 +20,21 @@ pnpm dev
 pnpm verify
 pnpm test:e2e
 pnpm performance:lighthouse
+pnpm release:verify
 ```
 
 `pnpm verify` runs public-repository and source-integrity checks, type checking,
 linting, unit tests, the production build, route-metadata validation, a
 public-bundle scan, and deterministic performance budgets. Lighthouse uses the
 installed Playwright Chromium binary and does not require credentials.
+
+From a clean Git checkout, `pnpm verify` also creates and verifies
+`dist/release-manifest.json` containing the exact source revision and hashes
+for every built file. CI uploads that manifest with one candidate artifact and
+all later jobs verify the same downloaded output instead of rebuilding it.
+Bounded JSON evidence records retain source, artifact, and browser outcomes;
+deployment and smoke-test fields remain explicitly empty until hosted proof
+exists.
 
 Responsive AVIF and WebP assets are regenerated from the approved JPEG with
 `pnpm assets:generate`.
@@ -47,6 +56,9 @@ and the sitemap are emitted only when the deployment environment is
 - `docs/design-provenance.md` records the approved design import.
 - `docs/support-matrix.md` defines browser, responsive, and assistive-technology coverage.
 - `docs/vulnerability-policy.md` defines the dependency vulnerability gate.
+- `docs/operations/release.md` defines production authorization and evidence.
+- `docs/operations/rollback.md` defines immutable-deployment rollback.
+- `docs/operations/incident-response.md` defines public-site incident handling.
 - `vercel.json` defines preview and production routing and response headers.
 
 Runtime dependency licenses are published in

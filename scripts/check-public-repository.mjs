@@ -1,14 +1,21 @@
+import { execFileSync } from "node:child_process";
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 
 const root = process.cwd();
 const ignoredDirectories = new Set([
   ".git",
+  ".lighthouseci",
   "dist",
+  "evidence",
   "node_modules",
   "playwright-report",
+  "release",
   "test-results",
 ]);
+const forbiddenTrackedDirectories = new Set(
+  [...ignoredDirectories].filter((directory) => directory !== ".git"),
+);
 const forbiddenFilePatterns = [
   { label: "environment file", pattern: /(^|\/)\.env(?:\.|$)/i },
   { label: "host link state", pattern: /(^|\/)\.vercel(?:\/|$)/i },
@@ -56,7 +63,14 @@ async function walk(directory) {
   const paths = [];
 
   for (const entry of entries) {
-    if (entry.isDirectory() && ignoredDirectories.has(entry.name)) continue;
+    const isRepositoryRoot = directory === root;
+    if (
+      entry.isDirectory() &&
+      isRepositoryRoot &&
+      ignoredDirectories.has(entry.name)
+    ) {
+      continue;
+    }
 
     const path = join(directory, entry.name);
     if (entry.isDirectory()) paths.push(...(await walk(path)));
@@ -68,6 +82,18 @@ async function walk(directory) {
 
 const failures = [];
 let checkedFiles = 0;
+
+const trackedFiles = execFileSync("git", ["ls-files", "-z"], {
+  encoding: "utf8",
+}).split("\0");
+for (const file of trackedFiles) {
+  const pathSegments = file.split("/").slice(0, -1);
+  if (
+    pathSegments.some((segment) => forbiddenTrackedDirectories.has(segment))
+  ) {
+    failures.push(`${file} is tracked generated evidence or build output`);
+  }
+}
 
 for (const file of await walk(root)) {
   const displayPath = relative(root, file).split(sep).join("/");

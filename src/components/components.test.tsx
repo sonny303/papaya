@@ -1,8 +1,10 @@
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { Card } from "./Card";
 import { GrowingPapayaMark } from "./GrowingPapayaMark";
+import { SiteFooter } from "./SiteFooter";
 
 describe("shared components", () => {
   it("renders card tones without editor-provided components", () => {
@@ -19,5 +21,25 @@ describe("shared components", () => {
     expect(mark).toHaveTextContent("papaya");
     expect(mark.querySelector("svg")).toBeInTheDocument();
     expect(mark.querySelectorAll("circle.papaya-seed")).toHaveLength(7);
+  });
+
+  it("uses the transparent supplied logo in the footer", () => {
+    const { container } = render(
+      <MemoryRouter>
+        <SiteFooter />
+      </MemoryRouter>,
+    );
+    const homeLink = screen.getByRole("link", { name: "Papaya Health home" });
+    expect(homeLink).toContainElement(container.querySelector("img"));
+    expect(container.querySelector("img")).toHaveAttribute(
+      "src",
+      "/assets/papaya-footer-logo-144.webp",
+    );
+    expect(container.querySelector("img")).toHaveAttribute(
+      "srcset",
+      "/assets/papaya-footer-logo-144.webp 1x, /assets/papaya-footer-logo-288.webp 2x",
+    );
+    expect(container.querySelector("img")).toHaveAttribute("loading", "lazy");
+    expect(container.querySelector("img")).toHaveAttribute("decoding", "async");
   });
 });

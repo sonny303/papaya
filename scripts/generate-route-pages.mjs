@@ -1,4 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
+import { isIP } from "node:net";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -21,17 +22,46 @@ function escapeAttribute(value) {
 export function normalizeSiteOrigin(value) {
   if (!value) return null;
 
-  const url = new URL(value);
+  let url;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error(
+      "PUBLIC_SITE_ORIGIN must be a public HTTPS origin without credentials, path, query, or fragment.",
+    );
+  }
+
+  const hostname = url.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  const labels = hostname.split(".");
+  const reservedSuffixes = new Set([
+    "alt",
+    "arpa",
+    "example",
+    "internal",
+    "invalid",
+    "local",
+    "localhost",
+    "onion",
+    "test",
+  ]);
   if (
     url.protocol !== "https:" ||
     url.username ||
     url.password ||
     url.pathname !== "/" ||
     url.search ||
-    url.hash
+    url.hash ||
+    hostname.length > 253 ||
+    !hostname.includes(".") ||
+    hostname.endsWith(".") ||
+    isIP(hostname) !== 0 ||
+    reservedSuffixes.has(labels.at(-1)) ||
+    labels.some(
+      (label) => !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label),
+    )
   ) {
     throw new Error(
-      "PUBLIC_SITE_ORIGIN must be an HTTPS origin without credentials, path, query, or fragment.",
+      "PUBLIC_SITE_ORIGIN must be a public HTTPS origin without credentials, path, query, or fragment.",
     );
   }
 
