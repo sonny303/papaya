@@ -712,6 +712,27 @@ a {
   background: white;
   color: var(--leaf);
 }
+.signup-toast {
+  position: fixed;
+  top: 24px;
+  right: 16px;
+  left: 16px;
+  margin: 0;
+  max-width: min(420px, calc(100vw - 32px));
+  z-index: 50;
+  padding: 14px 16px;
+  border: 1px solid var(--leaf);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--leaf);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+}
+@media (min-width: 768px) {
+  .signup-toast {
+    left: auto;
+    right: 24px;
+  }
+}
 .signup-form input:focus-visible {
   outline: 3px solid var(--leaf);
   outline-offset: 3px;
