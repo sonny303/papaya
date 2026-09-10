@@ -9,10 +9,11 @@ existing project brief, checked 2026-09-10. Clinical claims and new data collect
 still require the approvals in the release procedure.
 
 Repository: `sonny303/papaya`. Current stack: React, TypeScript, Vite, Tailwind,
-Cloudflare Pages, a submission Function, and D1. Read README.md, package.json,
-wrangler.json, and the actual code for current facts. Do not import another project
-requirements. Company strategy, partner-account design, and health-tracking scope
-remain open unless the founder explicitly decides them.
+and Cloudflare Workers static assets (no Pages Functions/D1 in scope unless the
+founder separately approves them). Read README.md, package.json, wrangler.json,
+host-contract.json, and the actual code for current facts. Do not import another
+project requirements. Company strategy, partner-account design, and health-tracking
+scope remain open unless the founder explicitly decides them.
 
 This is a public-safe context index, not a store for patient records, credentials,
 private business discussions, or deployment secrets. Keep private evidence in an

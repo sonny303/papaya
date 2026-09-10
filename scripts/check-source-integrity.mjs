@@ -14,7 +14,9 @@ const requiredFiles = [
   "src/pages/Terms.tsx",
   "src/pages/Privacy.tsx",
   "src/pages/NotFound.tsx",
-  "vercel.json",
+  "host-contract.json",
+  "wrangler.json",
+  "workers/site.ts",
   "public/404.html",
   "public/404.css",
   "public/THIRD_PARTY_NOTICES.txt",
@@ -116,9 +118,13 @@ if (noticeChecksum !== thirdPartyNoticeChecksum) {
 
 const manifest = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
 const lockfile = await readFile(join(root, "pnpm-lock.yaml"), "utf8");
-const hostConfig = JSON.parse(
-  await readFile(join(root, "vercel.json"), "utf8"),
+const hostContract = JSON.parse(
+  await readFile(join(root, "host-contract.json"), "utf8"),
 );
+const wranglerConfig = JSON.parse(
+  await readFile(join(root, "wrangler.json"), "utf8"),
+);
+const workerSource = await readFile(join(root, "workers/site.ts"), "utf8");
 
 for (const [name, version] of noticedProductionPackages) {
   if (!noticeContents.includes(`- ${name} ${version}`)) {
@@ -141,27 +147,22 @@ const expectedHostRoutes = new Set([
   "/terms",
   "/who-we-serve",
 ]);
-const configuredHostRoutes = new Set(
-  (hostConfig.rewrites ?? [])
-    .filter((rewrite) => rewrite.destination === "/index.html")
-    .map((rewrite) => rewrite.source),
-);
+const configuredHostRoutes = new Set(hostContract.spaRoutes ?? []);
 for (const route of expectedHostRoutes) {
   if (!configuredHostRoutes.has(route)) {
-    failures.push(`vercel.json does not route ${route} to the application`);
+    failures.push(
+      `host-contract.json does not route ${route} to the application`,
+    );
   }
 }
-if (configuredHostRoutes.has("/(.*)")) {
+if (configuredHostRoutes.has("/(.*)") || configuredHostRoutes.has("/*")) {
   failures.push(
-    "vercel.json masks unknown routes instead of returning HTTP 404",
+    "host-contract.json masks unknown routes instead of returning HTTP 404",
   );
 }
 
-const globalHeaders = (hostConfig.headers ?? []).find(
-  (entry) => entry.source === "/(.*)",
-)?.headers;
 const configuredHeaderNames = new Set(
-  (globalHeaders ?? []).map((header) => header.key.toLowerCase()),
+  Object.keys(hostContract.headers ?? {}).map((header) => header.toLowerCase()),
 );
 for (const header of [
   "content-security-policy",
@@ -171,16 +172,32 @@ for (const header of [
   "x-content-type-options",
 ]) {
   if (!configuredHeaderNames.has(header)) {
-    failures.push(`vercel.json is missing the ${header} response header`);
+    failures.push(
+      `host-contract.json is missing the ${header} response header`,
+    );
   }
 }
 
 if (
-  hostConfig.framework !== "vite" ||
-  hostConfig.outputDirectory !== "dist" ||
-  hostConfig.trailingSlash !== false
+  hostContract.outputDirectory !== "dist" ||
+  hostContract.trailingSlash !== false ||
+  wranglerConfig.assets?.directory !== "./dist" ||
+  wranglerConfig.assets?.html_handling !== "drop-trailing-slash" ||
+  wranglerConfig.assets?.not_found_handling !== "404-page" ||
+  wranglerConfig.assets?.run_worker_first !== true ||
+  wranglerConfig.main !== "workers/site.ts" ||
+  !workerSource.includes('from "../host-contract.json"') ||
+  !workerSource.includes("env.ASSETS.fetch")
 ) {
-  failures.push("vercel.json does not match the verified Vite host contract");
+  failures.push(
+    "Cloudflare host config does not match the verified Vite host contract",
+  );
+}
+
+if (/vercel/i.test(workerSource) || manifest.dependencies?.vercel) {
+  failures.push(
+    "repository still references Vercel in the production host path",
+  );
 }
 
 for (const file of await walk(join(root, "src"))) {
