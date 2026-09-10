@@ -172,8 +172,11 @@ export async function handleSubmission(
         { "Retry-After": "3600" },
       );
 
-    if (submission.kind === "waitlist") {
-      await notifyWaitlistSignup(submission.email, env, fetcher);
+    const inserted = (results[2].meta?.changes ?? 1) > 0;
+    if (submission.kind === "waitlist" && inserted) {
+      await notifyWaitlistSignup(submission.email, env, fetcher).catch(
+        () => {},
+      );
     }
 
     return reply(200, { saved: true });

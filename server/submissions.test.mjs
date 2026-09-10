@@ -127,23 +127,7 @@ test("notifies team inbox after waitlist signup", async () => {
   const response = await run({
     settings: {
       ...env,
-      DB: {
-        prepare(sql) {
-          return {
-            sql,
-            bind(...values) {
-              return { sql, values };
-            },
-          };
-        },
-        async batch(statements) {
-          return [
-            { success: true },
-            { success: true, results: [{ hits: 1 }] },
-            { success: true },
-          ];
-        },
-      },
+      DB: acknowledgingDb(),
       SUBMISSION_HASH_SECRET: "test-only",
       RESEND_API_KEY: "test-api-key",
       RESEND_FROM_EMAIL: "hello@papayahealth.com",
@@ -160,10 +144,65 @@ test("notifies team inbox after waitlist signup", async () => {
   assert.equal(payload.from, "hello@papayahealth.com");
   assert.equal(payload.to[0], "hello@papayahealth.com");
   assert.equal(payload.subject, "New Papaya Health waitlist signup");
-  assert.equal(payload.text, "A new email joined the waitlist: test@example.com");
+  assert.equal(
+    payload.text,
+    "A new email joined the waitlist: test@example.com",
+  );
 });
 test("storage rate limit produces retry guidance", async () => {
   const response = await run({ hits: 11 });
   assert.equal(response.statusCode, 429);
   assert.equal(response.headers["retry-after"], "3600");
+});
+function acknowledgingDb({ hits = 1, changes = 1 } = {}) {
+  return {
+    prepare(sql) {
+      return {
+        sql,
+        bind(...values) {
+          return { sql, values };
+        },
+      };
+    },
+    async batch() {
+      return [
+        { success: true },
+        { success: true, results: [{ hits }] },
+        { success: true, meta: { changes } },
+      ];
+    },
+  };
+}
+test("still confirms signup when waitlist notification fails", async () => {
+  const response = await run({
+    settings: {
+      ...env,
+      DB: acknowledgingDb(),
+      SUBMISSION_HASH_SECRET: "test-only",
+      RESEND_API_KEY: "test-api-key",
+      RESEND_FROM_EMAIL: "hello@papayahealth.com",
+    },
+    fetcher: async () => ({ ok: false, status: 500 }),
+  });
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.saved, true);
+});
+test("does not notify again when the waitlist email already exists", async () => {
+  const calls = [];
+  const response = await run({
+    settings: {
+      ...env,
+      DB: acknowledgingDb({ changes: 0 }),
+      SUBMISSION_HASH_SECRET: "test-only",
+      RESEND_API_KEY: "test-api-key",
+      RESEND_FROM_EMAIL: "hello@papayahealth.com",
+    },
+    fetcher: async (url) => {
+      calls.push(url);
+      return { ok: true };
+    },
+  });
+  assert.equal(response.statusCode, 200);
+  assert.equal(response.body.saved, true);
+  assert.deepEqual(calls, []);
 });
