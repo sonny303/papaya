@@ -18,7 +18,12 @@ const requiredFiles = [
   "src/pages/Terms.tsx",
   "src/pages/Privacy.tsx",
   "src/pages/NotFound.tsx",
-  "vercel.json",
+  "wrangler.json",
+  "functions/api/submit.js",
+  "server/submissions.mjs",
+  "migrations/0001_signups.sql",
+  "public/_headers",
+  "public/_routes.json",
   "public/404.html",
   "public/404.css",
   "public/THIRD_PARTY_NOTICES.txt",
@@ -119,6 +124,48 @@ const assetChecksums = new Map([
   ],
 ]);
 
+// Approved V2 photo and wordmark derivatives.
+assetChecksums.set(
+  "public/assets/planning-board-960.webp",
+  "a27ed927aecbd6f2a966c163d7bdbd6a07d6e86bb02b4f49762e12953f995c2c",
+);
+assetChecksums.set(
+  "public/assets/planning-board-1448.avif",
+  "8ccd42fc0297cb37bf18d7b1642b1f4fcfad7875793b1f00df1decfba753ef5d",
+);
+assetChecksums.set(
+  "public/assets/planning-board-768.avif",
+  "e87c5587f8fb9c6e66d7b52cc4b38eaa5fb1ad2c00680f442a8d827d5e22ecff",
+);
+assetChecksums.set(
+  "public/assets/planning-board-640.avif",
+  "bc5f73e026842f935dae005c80b0943745e65d1bb843d2b13a8eca52bd91de5c",
+);
+assetChecksums.set(
+  "public/assets/planning-board-1448.webp",
+  "2286f66e3c0e05207648bb4ce6dfc2ecda0eceb68ada8746f025a4cc7c09cd70",
+);
+assetChecksums.set(
+  "public/assets/planning-board.jpg",
+  "45909f72b3259a2dbcbc52c9ea9a161547c4ed3d8e9594a20b64ac58c2a0fc4d",
+);
+assetChecksums.set(
+  "public/assets/planning-board-640.webp",
+  "64614cc0b91dcec916c7d7a3c2e446c8dcef39df58f84c9f9eae214d723e42fb",
+);
+assetChecksums.set(
+  "public/assets/planning-board-768.webp",
+  "309ec8bab933667efe73c1f6892f806aa84d201b1623722bed6331896b3402c0",
+);
+assetChecksums.set(
+  "public/assets/planning-board-960.avif",
+  "44648d94412a853cd4b243792c9d336dbb6c956a2550bcb787012f1bfe53a2b4",
+);
+assetChecksums.set(
+  "public/assets/papaya-wordmark-v2.svg",
+  "90423f3b4a5dec070349c1d03639097eb1219d7a6d4fa9c468dd9ba507243f42",
+);
+
 const thirdPartyNoticeChecksum =
   "02d97a6d72d2af704a4ca125c80af800191b88bd44b01d917b1cea4f97b04129";
 const noticedProductionPackages = new Map([
@@ -214,7 +261,7 @@ for (const htmlPath of ["index.html", "public/404.html"]) {
 const manifest = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
 const lockfile = await readFile(join(root, "pnpm-lock.yaml"), "utf8");
 const hostConfig = JSON.parse(
-  await readFile(join(root, "vercel.json"), "utf8"),
+  await readFile(join(root, "wrangler.json"), "utf8"),
 );
 
 for (const [name, version] of noticedProductionPackages) {
@@ -232,38 +279,27 @@ for (const [name, version] of Object.entries(manifest.dependencies ?? {})) {
   }
 }
 
-const expectedHostRoutes = new Map([
-  ["/about-us", "/about-us.html"],
-  ["/privacy", "/privacy.html"],
-  ["/terms", "/terms.html"],
-  ["/who-we-serve", "/who-we-serve.html"],
-]);
-const configuredHostRoutes = new Map(
-  (hostConfig.rewrites ?? []).map((rewrite) => [
-    rewrite.source,
-    rewrite.destination,
-  ]),
-);
-for (const [route, output] of expectedHostRoutes) {
-  if (configuredHostRoutes.get(route) !== output) {
-    failures.push(`vercel.json does not route ${route} to ${output}`);
-  }
-}
-if (configuredHostRoutes.has("/(.*)")) {
-  failures.push(
-    "vercel.json masks unknown routes instead of returning HTTP 404",
-  );
-}
-
-const globalHeaders = (hostConfig.headers ?? []).find(
-  (entry) => entry.source === "/(.*)",
-)?.headers;
+const headerSource = await readFile(join(root, "public/_headers"), "utf8");
 const configuredHeaders = new Map(
-  (globalHeaders ?? []).map((header) => [
-    header.key.toLowerCase(),
-    header.value,
-  ]),
+  headerSource
+    .split("\n")
+    .filter((line) => line.startsWith("  "))
+    .map((line) => {
+      const colon = line.indexOf(":");
+      return [
+        line.slice(0, colon).trim().toLowerCase(),
+        line.slice(colon + 1).trim(),
+      ];
+    }),
 );
+const routes = JSON.parse(
+  await readFile(join(root, "public/_routes.json"), "utf8"),
+);
+if (
+  routes.version !== 1 ||
+  JSON.stringify(routes.include) !== JSON.stringify(["/api/*"])
+)
+  failures.push("Cloudflare Functions must be scoped to API routes");
 const expectedHeaders = new Map([
   [
     "content-security-policy",
@@ -282,17 +318,14 @@ const expectedHeaders = new Map([
 ]);
 for (const [header, expectedValue] of expectedHeaders) {
   if (configuredHeaders.get(header) !== expectedValue) {
-    failures.push(`vercel.json has an invalid ${header} response header`);
+    failures.push(
+      `Cloudflare _headers has an invalid ${header} response header`,
+    );
   }
 }
 
-if (
-  hostConfig.framework !== "vite" ||
-  hostConfig.outputDirectory !== "dist" ||
-  hostConfig.trailingSlash !== false
-) {
-  failures.push("vercel.json does not match the verified Vite host contract");
-}
+if (hostConfig.pages_build_output_dir !== "./dist")
+  failures.push("Cloudflare Pages must deploy dist");
 
 for (const file of await walk(join(root, "src"))) {
   if (!sourceExtensions.has(extname(file))) continue;

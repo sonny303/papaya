@@ -269,3 +269,21 @@ test("the static host error page is accessible", async ({ page }) => {
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
 });
+
+test("the ready card uses a distinct planning-board photo and correct desktop order", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/");
+  const hero = page.locator(".hero-photo img");
+  const ready = page.locator(".ready-photo img");
+  await expect(hero).toHaveAttribute("src", "/assets/couple-planning.jpg");
+  await expect(ready).toHaveAttribute("src", "/assets/planning-board.jpg");
+  const photo = await ready.boundingBox();
+  const copy = await page.locator(".ready-copy").boundingBox();
+  expect(photo!.x).toBeLessThan(copy!.x);
+  await expect(page.locator(".ready-copy")).toHaveCSS("text-align", "right");
+  await expect(
+    page.locator('[aria-labelledby="assessment-heading"]'),
+  ).toContainText("Coming soon");
+});

@@ -56,7 +56,7 @@ export function SiteHeader() {
         Skip to main content
       </a>
       <header className="relative z-20 border-b border-line/70 bg-surface">
-        <div className="mx-auto flex min-h-[104px] w-full max-w-[1120px] items-center justify-between px-4 md:min-h-[124px] md:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-[80px] w-full max-w-[1344px] items-center justify-between px-4 md:min-h-[96px] md:px-6 lg:px-8">
           <Link
             to="/"
             aria-label="Papaya Health home"

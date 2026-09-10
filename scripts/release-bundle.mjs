@@ -133,8 +133,7 @@ function treeDigest(files) {
 function resolvePublication({ publicationMode, siteOrigin }) {
   const mode =
     publicationMode ??
-    ((process.env.VERCEL_ENV ?? process.env.PAPAYA_DEPLOYMENT_ENV) ===
-    "production"
+    (process.env.PAPAYA_DEPLOYMENT_ENV === "production"
       ? "production"
       : "preview");
   if (!new Set(["preview", "production"]).has(mode)) {

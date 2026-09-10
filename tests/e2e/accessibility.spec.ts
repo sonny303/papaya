@@ -2,7 +2,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 
 const publicRoutes = [
   { name: "home", path: "/", primaryActionCount: 6 },
-  { name: "who-we-serve", path: "/who-we-serve", primaryActionCount: 0 },
+  { name: "who-we-serve", path: "/who-we-serve", primaryActionCount: 2 },
   { name: "about", path: "/about-us", primaryActionCount: 0 },
   { name: "terms", path: "/terms", primaryActionCount: 0 },
   { name: "privacy", path: "/privacy", primaryActionCount: 0 },
@@ -50,9 +50,9 @@ const primaryActions = [
     focusTarget: "#clinics",
   },
   {
-    id: "first-step-patient",
+    id: "assessment-patient",
     source: "/",
-    scope: 'section[aria-labelledby="first-step-heading"]',
+    scope: 'section[aria-labelledby="assessment-heading"]',
     name: "Join the waitlist",
     destination: "/who-we-serve#patients",
     focusTarget: "#patients",

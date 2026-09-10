@@ -11,6 +11,17 @@ export function PapayaLogo({
   animated = false,
   className = "",
 }: PapayaLogoProps) {
+  if (!animated) {
+    return (
+      <img
+        src="/assets/papaya-wordmark-v2.svg"
+        alt={alt}
+        width="1994"
+        height="416"
+        className={`papaya-logo-image ${className}`}
+      />
+    );
+  }
   return (
     <span
       aria-hidden={alt ? undefined : true}
