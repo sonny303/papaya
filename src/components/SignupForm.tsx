@@ -69,20 +69,20 @@ export function SignupForm({ kind }: { kind: "waitlist" | "clinic" }) {
     }
   }
   return (
-      <div className="signup-container">
-        {toastMessage && (
-          <p role="status" className="signup-toast">
-            {toastMessage}
-          </p>
-        )}
-        {saved ? (
-          kind === "clinic" && (
-            <p role="status" className="signup-success">
-              Thank you. Your clinic pilot inquiry has been saved.
-            </p>
-          )
-        ) : (
-          <form
+    <div className="signup-container">
+      {toastMessage && (
+        <p role="status" className="signup-toast">
+          {toastMessage}
+        </p>
+      )}
+      {saved ? (
+        <p role="status" className="signup-success">
+          {kind === "clinic"
+            ? "Thank you. Your clinic pilot inquiry has been saved."
+            : "Thank you. You’re on the Papaya Health waitlist."}
+        </p>
+      ) : (
+        <form
           onSubmit={submit}
           className="signup-form"
           aria-label={
