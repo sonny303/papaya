@@ -125,8 +125,7 @@ function renderRoutePage(template, route, metadata, siteOrigin) {
 export async function generateRoutePages({
   outputDirectory = join(process.cwd(), "dist"),
   siteOrigin: rawSiteOrigin = process.env.PUBLIC_SITE_ORIGIN,
-  deploymentEnvironment = process.env.VERCEL_ENV ??
-    process.env.PAPAYA_DEPLOYMENT_ENV,
+  deploymentEnvironment = process.env.PAPAYA_DEPLOYMENT_ENV,
 } = {}) {
   const siteOrigin = normalizeSiteOrigin(rawSiteOrigin);
   const isProduction = deploymentEnvironment === "production";

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "papaya-health",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-09-09",
+  "vars": {
+    "PAPAYA_ENV": "production"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "papaya-signups",
+      "database_id": "739b54ca-e484-47a3-9a53-4c68960334c9",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "env": {
+    "preview": {
+      "vars": {
+        "PAPAYA_ENV": "preview"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "papaya-signups-preview",
+          "database_id": "f7109cef-900a-42b6-a065-cea0ed89fc6f",
+          "migrations_dir": "migrations"
+        }
+      ]
+    }
+  }
+}

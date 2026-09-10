@@ -33,9 +33,10 @@
     "check:source": "node scripts/check-source-integrity.mjs",
     "check:public": "node scripts/check-public-build.mjs",
     "check:seo": "node scripts/check-route-pages.mjs",
-    "verify:source": "pnpm check:repo && pnpm check:history && pnpm check:source && pnpm check:assets && pnpm check:ci && pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm test:contracts",
+    "verify:source": "pnpm check:repo && pnpm check:history && pnpm check:source && pnpm check:assets && pnpm check:ci && pnpm format:check && pnpm typecheck && pnpm lint && pnpm test && pnpm test:forms && pnpm test:contracts",
     "verify:dist": "pnpm check:seo && pnpm check:public && pnpm performance:budget",
-    "verify": "pnpm verify:source && pnpm build && pnpm release:verify && pnpm verify:dist"
+    "verify": "pnpm verify:source && pnpm build && pnpm release:verify && pnpm verify:dist",
+    "test:forms": "node --test server/submissions.test.mjs"
   },
   "dependencies": {
     "@fontsource/dm-sans": "5.3.0",

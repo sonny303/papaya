@@ -59,10 +59,23 @@ and the sitemap are emitted only when the deployment environment is
 - `docs/operations/release.md` defines production authorization and evidence.
 - `docs/operations/rollback.md` defines immutable-deployment rollback.
 - `docs/operations/incident-response.md` defines public-site incident handling.
-- `vercel.json` defines preview and production routing and response headers.
+- `wrangler.json` configures Cloudflare Pages and D1 bindings; `public/_headers`
+  defines security headers. Cloudflare serves extensionless HTML routes and the
+  checked-in `404.html` handles unknown paths.
 
 Runtime dependency licenses are published in
 [`public/THIRD_PARTY_NOTICES.txt`](public/THIRD_PARTY_NOTICES.txt) and shipped
 with the production build.
 
 GitHub is the source of truth for production code after the initial design import.
+
+## Cloudflare hosting
+
+The website runs on Cloudflare Pages with a Pages Function at `/api/submit`
+and private D1 storage. Apply `migrations/0001_signups.sql` before enabling forms.
+Preview and production use separate D1 databases. `SUBMISSION_HASH_SECRET` is a
+Cloudflare secret; never commit its value. `PAPAYA_ENV` selects the record namespace.
+
+Build preview metadata by default. For production, set
+`PAPAYA_DEPLOYMENT_ENV=production` and `PUBLIC_SITE_ORIGIN=https://www.papayahealth.com`.
+Deploy the verified output with Wrangler Pages. GitHub remains the source of truth.

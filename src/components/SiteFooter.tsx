@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { PapayaLogo } from "./PapayaLogo";
 
 const exploreLinks = [
   { label: "Home", to: "/#main-content" },
@@ -21,7 +22,7 @@ export function SiteFooter() {
       className="border-t border-line bg-surface"
       aria-label="Site footer"
     >
-      <div className="mx-auto w-full max-w-[1120px] px-4 py-12 md:px-6 md:py-14 lg:px-8">
+      <div className="mx-auto w-full max-w-[1344px] px-4 py-12 md:px-6 md:py-14 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_0.6fr_0.6fr] lg:gap-12">
           <div className="max-w-xl">
             <Link
@@ -29,17 +30,7 @@ export function SiteFooter() {
               aria-label="Papaya Health home"
               className="inline-flex rounded-control bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf focus-visible:ring-offset-4 focus-visible:ring-offset-surface"
             >
-              <img
-                src="/assets/papaya-footer-logo-144.webp"
-                srcSet="/assets/papaya-footer-logo-144.webp 1x, /assets/papaya-footer-logo-288.webp 2x"
-                alt=""
-                aria-hidden="true"
-                width="144"
-                height="144"
-                loading="lazy"
-                decoding="async"
-                className="h-auto w-36"
-              />
+              <PapayaLogo alt="" />
             </Link>
             <p className="mt-6 text-sm leading-6 text-muted">
               Papaya Health does not diagnose, treat, cure, or prevent diseases

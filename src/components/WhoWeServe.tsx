@@ -1,4 +1,5 @@
 import { Card } from "./Card";
+import { SignupForm } from "./SignupForm";
 
 export function WhoWeServeContent() {
   return (
@@ -44,6 +45,7 @@ export function WhoWeServeContent() {
               Be first to know when Papaya Health is ready to help you and your
               partner prepare for conception together.
             </p>
+            <SignupForm kind="waitlist" />
           </Card>
         </div>
       </section>
@@ -115,6 +117,7 @@ export function WhoWeServeContent() {
                 Learn how a Papaya Health pilot can support patients before they
                 begin trying to conceive.
               </p>
+              <SignupForm kind="clinic" />
             </Card>
           </div>
         </div>

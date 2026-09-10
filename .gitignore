@@ -14,7 +14,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
-.vercel/
 .playwright/
 .lighthouseci/
 playwright-report/
@@ -32,3 +31,10 @@ evidence/
 *.njsproj
 *.sln
 *.sw?
+.env*
+
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+.vercel/

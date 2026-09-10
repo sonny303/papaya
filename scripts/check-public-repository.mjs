@@ -5,6 +5,7 @@ import { join, relative, sep } from "node:path";
 const root = process.cwd();
 const ignoredDirectories = new Set([
   ".git",
+  ".wrangler",
   ".lighthouseci",
   "dist",
   "evidence",
@@ -17,7 +18,10 @@ const forbiddenTrackedDirectories = new Set(
   [...ignoredDirectories].filter((directory) => directory !== ".git"),
 );
 const forbiddenFilePatterns = [
-  { label: "environment file", pattern: /(^|\/)\.env(?:\.|$)/i },
+  {
+    label: "environment file",
+    pattern: /(^|\/)(?:\.env(?:\.|$)|\.dev\.vars(?:\.|$))/i,
+  },
   { label: "host link state", pattern: /(^|\/)\.vercel(?:\/|$)/i },
   {
     label: "private working file",

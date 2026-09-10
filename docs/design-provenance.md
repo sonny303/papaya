@@ -36,3 +36,35 @@ repository.
 
 The header mark and wordmark are rendered from repository source. No production
 asset is loaded from a stock library or a runtime design-platform URL.
+
+## Approved homepage V2
+
+The owner requested the V2 composition and authorized generation of a matching
+second photograph after confirming that the original standalone file was absent.
+The hero retains the repository-owned table-planning couple. The ready card now
+uses `planning-board.jpg`, generated with the built-in image generation tool,
+and deterministic responsive AVIF/WebP derivatives. It shows two adult women in
+rust and cream at a laptop looking toward a planning board; it is not the hero.
+
+Generation prompt: Create a natural photorealistic landscape lifestyle photograph
+of two adult female partners in a warm sunny plant-filled home. The left woman
+has dark curly pinned-up hair and a rust blouse; the right woman has light brown
+hair in a loose bun and a cream knit sweater. Both smile toward a planning board,
+with the woman in cream pointing to a blank note. Include an unbranded laptop,
+plain mug and notebook, with both faces and hands visible and room for responsive
+cropping. Use warm morning light and realistic skin texture. No legible writing,
+logos, green graphic panel, website UI or watermark. Generate a distinct scene
+from the male-and-female hero couple.
+
+`papaya-wordmark-v2.svg` is an actual path-based vector trace of the owner's
+supplied joined PNG wordmark, created at their request to remove raster blur.
+The trace preserves the lettering silhouettes and uses flat dark, orange, coral
+and green fills; the raster texture is intentionally removed. It contains 36
+paths, no embedded bitmap, and no font dependency. It is a traced derivative,
+not an original designer-supplied vector master. The About page's
+existing animated mark remains unchanged.
+
+The full-build byte allowance is now 2 MiB to include two source photographs and
+sixteen responsive derivatives. Individual responsive images remain under 100
+KiB. The compressed stylesheet allowance is 8 KiB for the V2 responsive layout
+and form states; JavaScript and font limits are unchanged.

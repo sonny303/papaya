@@ -36,7 +36,7 @@ const javascript = fileRecords.filter(({ path }) => extname(path) === ".js");
 const styles = fileRecords.filter(({ path }) => extname(path) === ".css");
 const fonts = fileRecords.filter(({ path }) => /\.(?:woff2?)$/.test(path));
 const responsiveImages = fileRecords.filter(({ name }) =>
-  /^assets\/couple-planning-\d+\.(?:avif|webp)$/.test(name),
+  /^assets\/(?:couple-planning|planning-board)-\d+\.(?:avif|webp)$/.test(name),
 );
 const originalImage = fileRecords.find(
   ({ name }) => name === "assets/couple-planning.jpg",
@@ -60,9 +60,9 @@ const budgets = {
   javascript: 280 * 1024,
   javascriptGzip: 85 * 1024,
   styles: 24 * 1024,
-  stylesGzip: 6 * 1024,
+  stylesGzip: 8 * 1024,
   fonts: 110 * 1024,
-  output: 1200 * 1024,
+  output: 2048 * 1024,
   responsiveImage: 100 * 1024,
   originalImage: 400 * 1024,
 };
@@ -81,8 +81,8 @@ const failures = [];
 if (javascript.length === 0)
   failures.push("dist contains no JavaScript bundle");
 if (styles.length === 0) failures.push("dist contains no CSS bundle");
-if (responsiveImages.length !== 8) {
-  failures.push("dist does not contain all eight responsive image variants");
+if (responsiveImages.length !== 16) {
+  failures.push("dist does not contain all sixteen responsive image variants");
 }
 if (!originalImage) failures.push("dist lacks the original image fallback");
 

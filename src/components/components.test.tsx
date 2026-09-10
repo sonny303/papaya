@@ -23,7 +23,7 @@ describe("shared components", () => {
     expect(mark.querySelectorAll("circle.papaya-seed")).toHaveLength(7);
   });
 
-  it("uses the transparent supplied logo in the footer", () => {
+  it("uses the supplied joined wordmark in the footer", () => {
     const { container } = render(
       <MemoryRouter>
         <SiteFooter />
@@ -33,13 +33,7 @@ describe("shared components", () => {
     expect(homeLink).toContainElement(container.querySelector("img"));
     expect(container.querySelector("img")).toHaveAttribute(
       "src",
-      "/assets/papaya-footer-logo-144.webp",
+      "/assets/papaya-wordmark-v2.svg",
     );
-    expect(container.querySelector("img")).toHaveAttribute(
-      "srcset",
-      "/assets/papaya-footer-logo-144.webp 1x, /assets/papaya-footer-logo-288.webp 2x",
-    );
-    expect(container.querySelector("img")).toHaveAttribute("loading", "lazy");
-    expect(container.querySelector("img")).toHaveAttribute("decoding", "async");
   });
 });
