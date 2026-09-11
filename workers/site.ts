@@ -24,7 +24,9 @@ export default {
     const pathname = url.pathname === "" ? "/" : url.pathname;
 
     if (spaRoutes.has(pathname)) {
-      const assetUrl = new URL("/index.html", url);
+      // Fetch "/" from ASSETS (not "/index.html"): with html_handling
+      // drop-trailing-slash, "/index.html" 307s to "/" and loops via the Worker.
+      const assetUrl = new URL("/", url);
       const assetResponse = await env.ASSETS.fetch(
         new Request(assetUrl, request),
       );
