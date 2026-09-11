@@ -1,6 +1,7 @@
 # Papaya Health
 
 Public website for Papaya Health, built with React, TypeScript, Vite, and Tailwind CSS.
+Production host: Cloudflare Workers static assets.
 
 ## Local development
 
@@ -24,14 +25,26 @@ pnpm test:e2e
 `pnpm verify` runs public-repository and source-integrity checks, type checking,
 linting, unit tests, the production build, and a public-bundle scan.
 
+## Deploy (Cloudflare)
+
+```bash
+pnpm build
+pnpm deploy
+```
+
+Requires Cloudflare credentials (`CLOUDFLARE_API_TOKEN` and account access).
+See `docs/operations/release.md` for production gates.
+
 ## Structure
 
 - `src/components` contains shared interface components.
 - `src/pages` contains the public routes.
 - `src/data` contains static public-page content.
 - `public/assets` contains repository-managed runtime assets.
+- `workers/site.ts` serves static assets, SPA routes, 404s, and security headers.
+- `host-contract.json` is the verified host routing and header contract.
+- `wrangler.json` configures the Cloudflare Workers static deployment.
 - `docs/design-provenance.md` records the approved design import.
-- `vercel.json` defines preview and production routing and response headers.
 
 Runtime dependency licenses are published in
 [`public/THIRD_PARTY_NOTICES.txt`](public/THIRD_PARTY_NOTICES.txt) and shipped
